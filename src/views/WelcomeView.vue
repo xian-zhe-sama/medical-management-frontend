@@ -3,11 +3,11 @@
 </script>
 
 <template>
+
   <div style="width: 100vw;height: 100vh;overflow: hidden;display: flex">
     <div style="flex:1;background-color: black">
       <el-image style="width: 100%;height: 100%" fit="cover"
-          src="src/image/RE4wtbD.jpg"/>
-
+                src="src/image/RE4wtbD.jpg"/>
     </div>
     <div class="welcome-title">
       <div style="font-size: 30px;font-weight: bold">欢迎来到医疗管理系统</div>
