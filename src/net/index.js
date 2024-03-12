@@ -1,10 +1,10 @@
 import axios from 'axios'
 import {ElMessage} from "element-plus";
-
+//用户token名称
 const authItemName = "access_token"
 
 const defaultFailure = (message,code,url)=>{
-    console.warn('请求地址：${url},状态码：${code},错误信息:${message}')
+    console.warn(`请求地址：${url},状态码：${code},错误信息:${message}`)
     ElMessage.warning(message)
 }
 
@@ -26,6 +26,7 @@ function takeAccessToken() {
 
 function storeAccessToken(token, remember, expire) {
     const authObj = {token:token, expire: expire}
+    //存到storage里要以字符串的形式
     const str = JSON.stringify(authObj)
     if (remember) {
         localStorage.setItem(authItemName,str)
@@ -38,6 +39,7 @@ function deleteAccessToken() {
     localStorage.removeItem(authItemName);
     sessionStorage.removeItem(authItemName);
 }
+//内部封装Post
 function internalPost(url,data,header,success,failure,error=defaultError){
     axios.post(url,data,{headers:header}).then(({data})=>{
         if(data.code=== 200){
@@ -48,7 +50,8 @@ function internalPost(url,data,header,success,failure,error=defaultError){
     }).catch(err =>error(err))
 }
 
-function internalGet(url,data,header,success,failure,error=defaultError){
+//内部封装Get
+function internalGet(url,header,success,failure,error=defaultError){
     axios.get(url,{headers:header}).then(({data})=>{
         if(data.code=== 200){
             success(data.data)
@@ -62,6 +65,7 @@ function login(username,password,remember,success,failure=defaultFailure){
         username: username,
         password: password,
     },{
+        //springSecurity只支持表单登录，所以把axios的默认json变成表单的形式
         'Content-Type': 'application/x-www-form-urlencoded',
 
     },(data)=>{
@@ -70,4 +74,5 @@ function login(username,password,remember,success,failure=defaultFailure){
         success(data);
     },failure)
 }
+//将方法暴露出去
 export {login}
