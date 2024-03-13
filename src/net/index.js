@@ -15,13 +15,18 @@ const defaultError = (err) =>{
 
 function takeAccessToken() {
     const str = localStorage.getItem(authItemName) || sessionStorage.getItem(authItemName);
-    if(!str) return null;
+    if(!str) {
+        // ElMessage.warning('未检测到本地token')
+        return null;
+    }
     const authObj = JSON.parse(str);
     if (authObj.expire <= new Date()) {
         deleteAccessToken()
         ElMessage.warning('登录状态已过期，请重新登录')
         return null
     }
+    return authObj.token
+    // ElMessage.success(`成功获得本地token${authObj.token}`)
 }
 
 function storeAccessToken(token, remember, expire) {
@@ -39,6 +44,15 @@ function deleteAccessToken() {
     localStorage.removeItem(authItemName);
     sessionStorage.removeItem(authItemName);
 }
+//获取请求头
+function accessHeader(){
+    const token = takeAccessToken();
+    // ElMessage.success(`token+++++++${takeAccessToken()}`)
+    // ElMessage.success('{')
+    // ElMessage.success(`Authorization : Bearer ${token}`)
+    // ElMessage.success('}')
+    return token ? {'Authorization':`Bearer ${takeAccessToken()}`} : {};
+}
 //内部封装Post
 function internalPost(url,data,header,success,failure,error=defaultError){
     axios.post(url,data,{headers:header}).then(({data})=>{
@@ -51,7 +65,20 @@ function internalPost(url,data,header,success,failure,error=defaultError){
 }
 
 //内部封装Get
-function internalGet(url,header,success,failure,error=defaultError){
+function internalGet(url,header,success,failure,error=defaultError) {
+    // ElMessage.success(`header ++++++++++++${header.Authorization}`)
+//     axios({
+//         method: 'get',
+//         url: url,
+//         headers: header,
+//     }).then(({data}) => {
+//         if (data.code === 200) {
+//             success(data.data)
+//         } else {
+//             failure(data.message, data.code, url)
+//         }
+//     }).catch(err => error(err))
+// }
     axios.get(url,{headers:header}).then(({data})=>{
         if(data.code=== 200){
             success(data.data)
@@ -59,6 +86,16 @@ function internalGet(url,header,success,failure,error=defaultError){
             failure(data.message,data.code,url)
         }
     }).catch(err =>error(err))
+}
+
+//封装的外部使用的get
+function get(url, success, failure = defaultFailure) {
+    internalGet(url,accessHeader(),success,failure)
+}
+
+//封装的外部使用的post
+function post(url,data,success,failure= defaultFailure){
+    internalPost(url,data,accessHeader(),success,failure)
 }
 function login(username,password,remember,success,failure=defaultFailure){
     internalPost('/api/auth/login',{
@@ -74,5 +111,17 @@ function login(username,password,remember,success,failure=defaultFailure){
         success(data);
     },failure)
 }
+function logout(success,failure = defaultFailure){
+   get('/api/auth/logout',()=>{
+       deleteAccessToken();
+       ElMessage.success('退出登录成功，欢迎您再次使用')
+       success()
+   },failure)
+}
+
+//未登录为true
+function unauthorized (){
+    return !takeAccessToken();
+}
 //将方法暴露出去
-export {login}
+export {login,logout,get,post,unauthorized}

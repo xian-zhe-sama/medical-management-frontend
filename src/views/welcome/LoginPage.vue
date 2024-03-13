@@ -2,6 +2,7 @@
 import {Lock, User} from '@element-plus/icons-vue'
 import {ref,reactive,watch} from "vue";
 import {login} from "@/net/index.js";
+import router from "@/router/index.js";
 //校验
 const formRef = ref();
 const form = reactive({
@@ -34,7 +35,7 @@ function userLogin(){
   //用于验证的函数
   formRef.value.validate((valid)=>{
     if(valid){
-      login(form.username,form.password,form.remember,()=>{})
+      login(form.username,form.password,form.remember,()=>router.push('/index'))
     }
   })
 }
