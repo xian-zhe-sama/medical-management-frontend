@@ -132,6 +132,10 @@ function doReset(){
       <div style="margin-top: 80px;">
         <el-button  @click="confirmReset" style="width: 270px" type="warning">开始重置密码</el-button>
       </div>
+      <div style="margin-top: 20px">
+        <span style="font-size: 14px;line-height: 15px;color: grey">已有账号？</span>
+        <el-link style="translate:0 -1px" @click="router.push('/')">立即登录</el-link>
+      </div>
     </div>
     <div style="margin:0 20px" v-if="active ===1|| active===2">
       <div style="margin-top: 80px">
