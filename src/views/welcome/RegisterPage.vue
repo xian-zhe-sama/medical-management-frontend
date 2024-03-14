@@ -144,7 +144,7 @@ function register(){
         </el-form>
 
       </div>
-      <div style="margin: 80px;">
+      <div style="margin-top: 80px;">
         <el-button  @click="register" style="width: 270px" type="warning">立即注册</el-button>
       </div>
     </div>
