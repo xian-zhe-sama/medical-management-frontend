@@ -80,6 +80,7 @@ function doReset(){
   formRef.value.validate((valid)=>{
     if(valid){
       post('/api/auth/reset-password',{...form},()=>{
+        active.value++;
         ElMessage.success('密码重置成功，请重新登录');
         router.push('/')
       })
@@ -132,7 +133,7 @@ function doReset(){
         <el-button  @click="confirmReset" style="width: 270px" type="warning">开始重置密码</el-button>
       </div>
     </div>
-    <div style="margin:0 20px" v-if="active ===1">
+    <div style="margin:0 20px" v-if="active ===1|| active===2">
       <div style="margin-top: 80px">
         <div style="font-size: 25px;font-weight: bold">重置密码</div>
         <div style="font-size: 14px;color: grey">请输入新密码</div>
