@@ -28,15 +28,20 @@ function takeAccessToken() {
     return authObj.token
     // ElMessage.success(`成功获得本地token${authObj.token}`)
 }
-
-function storeAccessToken(token, remember, expire) {
+//将用户信息存入session
+function storeAccessToken(token, remember, expire,role,username) {
     const authObj = {token:token, expire: expire}
+    const roleObj = {role:role}
     //存到storage里要以字符串的形式
     const str = JSON.stringify(authObj)
     if (remember) {
         localStorage.setItem(authItemName,str)
+        localStorage.setItem('role',JSON.stringify(roleObj))
+        localStorage.setItem('username',JSON.stringify(username))
     }else{
         sessionStorage.setItem(authItemName,str)
+        localStorage.setItem('role',JSON.stringify(roleObj))
+        localStorage.setItem('username',JSON.stringify(username))
     }
 }
 
@@ -106,7 +111,7 @@ function login(username,password,remember,success,failure=defaultFailure){
         'Content-Type': 'application/x-www-form-urlencoded',
 
     },(data)=>{
-        storeAccessToken(data.token,remember,data.expire)
+        storeAccessToken(data.token,remember,data.expire,data.role,data.username)
         ElMessage.success(`登陆成功，欢迎${data.username}`)
         success(data);
     },failure)

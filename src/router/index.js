@@ -26,13 +26,20 @@ const router = createRouter({
         },{
             path:'/index',
             name: 'index',
-            component:()=> import('@/views/IndexView.vue')
+            component: () => import('@/views/IndexView.vue'),
+            children: [
+                {
+                    path: '',
+                    name: 'index-sidebar',
+                    component: () => import('@/views/index/SidebarPage.vue'),
+                }
+            ],
 
         }
     ]
 })
 
-router.beforeEach((to,form,next)=>{
+router.beforeEach((to,from,next)=>{
     const isUnauthorized = unauthorized();
     if (to.name.startsWith('welcome-')&&!isUnauthorized){
         //已登录进入主界面,进入登录页面自动进入主界面
