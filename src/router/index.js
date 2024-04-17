@@ -29,12 +29,74 @@ const router = createRouter({
             component: () => import('@/views/IndexView.vue'),
             children: [
                 {
-                    path: '',
-                    name: 'index-sidebar',
-                    component: () => import('@/views/index/SidebarPage.vue'),
+                    path: 'doctor',
+                    name: 'index-doctor',
+                    component: () => import('@/views/index/DoctorManagePage.vue'),
+                },
+                {
+                    path: 'nurse',
+                    name: 'index-nurse',
+                    component: () => import('@/views/index/NurseManagePage.vue'),
+                },
+                {
+                    path: 'department',
+                    name: 'index-department',
+                    component: () => import('@/views/index/DepartmentManagePage.vue'),
+                },
+                {
+                    path: 'medicine',
+                    name: 'index-medicine',
+                    component: () => import('@/views/index/MedicineManagePage.vue'),
+                }, {
+                    path: 'hospitalizations',
+                    name: 'index-hospitalizations',
+                    component: () => import('@/views/index/HospitalizationsPage.vue'),
+                }, {
+                    path: 'account',
+                    name: 'index-account',
+                    component: () => import('@/views/index/AccountManagePage.vue'),
+                },{
+                    path: 'equipment',
+                    name: 'index-equipment',
+                    component: () => import('@/views/index/EquipmentManagePage.vue'),
                 }
             ],
 
+
+        },{
+            path: '/doctorIndex',
+            name: 'doctorIndex',
+            component: () => import('@/views/DoctorIndexView.vue'),
+            children: [
+                {
+                    path: 'medicine',
+                    name: 'doctor-index-medicine',
+                    component: () => import('@/views/index/MedicineManagePage.vue'),
+                },{
+                    path: 'hospitalizations',
+                    name: 'doctor-index-hospitalizations',
+                    component: () => import('@/views/index/HospitalizationsPage.vue'),
+                },{
+                    path: 'equipment',
+                    name: 'doctor-equipment',
+                    component: () => import('@/views/index/EquipmentManagePage.vue'),
+                }
+            ]
+        },{
+            path: '/nurseIndex',
+            name: 'nurseIndex',
+            component: () => import('@/views/NurseIndexView.vue'),
+            children: [
+                {
+                    path: 'medicine',
+                    name: 'doctor-index-medicine',
+                    component: () => import('@/views/index/MedicineManagePage.vue'),
+                },{
+                    path: 'hospitalizations',
+                    name: 'doctor-index-hospitalizations',
+                    component: () => import('@/views/index/HospitalizationsPage.vue'),
+                }
+            ]
         }
     ]
 })
@@ -42,6 +104,19 @@ const router = createRouter({
 router.beforeEach((to,from,next)=>{
     const isUnauthorized = unauthorized();
     if (to.name.startsWith('welcome-')&&!isUnauthorized){
+        let sessionRole;
+        let localRole;
+        try {
+            sessionRole = JSON.parse(sessionStorage.getItem('role'));
+            localRole = JSON.parse(localStorage.getItem('role'));
+        } catch (e){
+            console.error('Error parsing role from sessionStorage',e)
+        }
+
+        if(localRole==='doctor'||sessionRole==='doctor')
+            next('/doctorIndex');
+        if(localRole==='nurse'||sessionRole==='nurse')
+            next('/nurseIndex');
         //已登录进入主界面,进入登录页面自动进入主界面
         next('/index');
     }else if (to.fullPath.startsWith('/index') && isUnauthorized) {

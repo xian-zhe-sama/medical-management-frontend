@@ -2,7 +2,6 @@ import axios from 'axios'
 import {ElMessage} from "element-plus";
 //用户token名称
 const authItemName = "access_token"
-
 const defaultFailure = (message,code,url)=>{
     console.warn(`请求地址：${url},状态码：${code},错误信息:${message}`)
     ElMessage.warning(message)
@@ -29,25 +28,32 @@ function takeAccessToken() {
     // ElMessage.success(`成功获得本地token${authObj.token}`)
 }
 //将用户信息存入session
-function storeAccessToken(token, remember, expire,role,username) {
+function storeAccessToken(token, remember, expire,role,username,id) {
     const authObj = {token:token, expire: expire}
-    const roleObj = {role:role}
     //存到storage里要以字符串的形式
     const str = JSON.stringify(authObj)
     if (remember) {
         localStorage.setItem(authItemName,str)
-        localStorage.setItem('role',JSON.stringify(roleObj))
+        localStorage.setItem('role',JSON.stringify(role))
         localStorage.setItem('username',JSON.stringify(username))
+        localStorage.setItem('id',JSON.stringify(id))
     }else{
         sessionStorage.setItem(authItemName,str)
-        localStorage.setItem('role',JSON.stringify(roleObj))
-        localStorage.setItem('username',JSON.stringify(username))
+        sessionStorage.setItem('role',JSON.stringify(role))
+        sessionStorage.setItem('username',JSON.stringify(username))
+        sessionStorage.setItem('id',JSON.stringify(id))
     }
 }
 
 function deleteAccessToken() {
     localStorage.removeItem(authItemName);
     sessionStorage.removeItem(authItemName);
+    localStorage.removeItem('role');
+    sessionStorage.removeItem('role');
+    localStorage.removeItem('username');
+    sessionStorage.removeItem('username');
+    localStorage.removeItem('id');
+    sessionStorage.removeItem('id');
 }
 //获取请求头
 function accessHeader(){
@@ -98,6 +104,7 @@ function get(url, success, failure = defaultFailure) {
     internalGet(url,accessHeader(),success,failure)
 }
 
+
 //封装的外部使用的post
 function post(url,data,success,failure= defaultFailure){
     internalPost(url,data,accessHeader(),success,failure)
@@ -111,7 +118,7 @@ function login(username,password,remember,success,failure=defaultFailure){
         'Content-Type': 'application/x-www-form-urlencoded',
 
     },(data)=>{
-        storeAccessToken(data.token,remember,data.expire,data.role,data.username)
+        storeAccessToken(data.token,remember,data.expire,data.role,data.username,data.id)
         ElMessage.success(`登陆成功，欢迎${data.username}`)
         success(data);
     },failure)

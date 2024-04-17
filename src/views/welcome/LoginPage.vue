@@ -35,7 +35,20 @@ function userLogin(){
   //用于验证的函数
   formRef.value.validate((valid)=>{
     if(valid){
-      login(form.username,form.password,form.remember,()=>router.push('/index'))
+      login(form.username,form.password,form.remember,(data)=>{
+        if(data.role==='admin'){
+          console.log('进入admin')
+          router.push('/index')
+        }
+        if (data.role==='doctor') {
+          console.log('进入doctor')
+          router.push('/doctorIndex')
+        }
+        if (data.role==='nurse') {
+          console.log('进入nurse')
+          router.push('/nurseIndex')
+        }
+      })
     }
   })
 }

@@ -1,11 +1,14 @@
-<script setup lang="ts">
-
-</script>
-
 <template>
+
+
+  <el-button plain @click="dialogFormVisible = true">
+    Open a Form nested Dialog
+  </el-button>
+
 
 </template>
 
-<style scoped>
+<script lang="ts" setup>
+import { reactive, ref } from 'vue'
 
-</style>
+</script>

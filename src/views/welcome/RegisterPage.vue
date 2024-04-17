@@ -98,14 +98,14 @@ function register(){
       <div style="margin-top: 50px">
         <el-form :model="form" :rules="rule" ref="formRef">
           <el-form-item prop="username">
-            <el-input v-model="form.username" minlength="2" maxlength="8" type="text" placeholder="用户名">
+            <el-input v-model="form.username" minlength="2" maxlength="8" type="text" placeholder="用户名" autocomplete="off">
               <template #prefix>
                 <el-icon><User /></el-icon>
               </template>
             </el-input>
           </el-form-item>
           <el-form-item prop="password">
-            <el-input v-model="form.password" minlength="6" maxlength="20" type="password" placeholder="密码">
+            <el-input v-model="form.password" minlength="6" maxlength="20" type="password" placeholder="密码" autocomplete="off">
               <template #prefix>
                 <el-icon><Lock /></el-icon>
               </template>
