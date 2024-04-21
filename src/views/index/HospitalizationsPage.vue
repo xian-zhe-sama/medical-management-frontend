@@ -24,6 +24,26 @@ const form = ref({
   gender: '',
   department: '',
   birthday: '',
+  status: '',
+  description: '',
+  relativesPhone: '',
+  space: '',
+  progress: '',
+  phone: '',
+});
+const nullForm = ref({
+  hospitalizationsId: '',
+  name: '',
+  remark: '',
+  gender: '',
+  department: '',
+  birthday: '',
+  status: '',
+  description: '',
+  relativesPhone: '',
+  space: '',
+  progress: '',
+  phone: '',
 });
 const rule = ref({
   name: [
@@ -46,8 +66,36 @@ const rule = ref({
   departmentId: [
     {required: true, message: '请选择科室', trigger: ['blur', 'change']},
   ],
+  status:[
+    {required: true, message: '请选择状态', trigger: ['blur', 'change']},
+  ],
+  phone: [
+    {validator: validatePhoneNumber, message: '请输入正确的手机号', trigger: ['blur']},
+  ],
+  relativesPhone: [
+    {validator: validatePhoneNumber, message: '请输入正确的手机号', trigger: ['blur']},
+  ],
+  space:[
+    {required: true, message: '请输入床位', trigger: ['blur', 'change']},
+  ],
+  progress: [
+    {required: true, message: '请输入治疗进度', trigger: ['blur', 'change']}
+  ],
+  description:[
+    {required: true, message: '请输入病情描述', trigger: ['blur', 'change']}
+  ]
 });
-
+function validatePhoneNumber  (rule,value, callback)  {
+  // 定义中国大陆手机号的正则表达式规则
+  const reg = /^1[3-9]\d{9}$/;
+  if (value === '') {
+    callback(new Error('请输入手机号'));
+  } else if (!reg.test(value)) {
+    callback(new Error('手机号格式不正确'));
+  } else {
+    callback();
+  }
+};
 function validateUsername (rule,value,callback) {
   if (value === '') {
     callback(new Error('请输入姓名'))
@@ -150,6 +198,8 @@ function saveHospitalizations() {
 }
 
 function resetForm(){
+  form.value = {...nullForm.value};
+  if(formRef.value)
   formRef.value.resetFields();
 }
 
@@ -215,8 +265,8 @@ function handleSelectionChange(selection) {
   selectedHospitalizationsIds.value = selection.map((item) => item.hospitalizationsId)
 }
 function handleEdit(hospitalizations) {
-  Object.assign(form.value, hospitalizations)
-  this.dialogFormVisible = true;
+  form.value={...hospitalizations}
+  dialogFormVisible.value = true;
 }
 
 //页面跳转函数，默认为第一页，默认每页10条数据
@@ -229,7 +279,10 @@ function changePage(newPage) {
   }else{
     getAllhospitalizations();
   }
-
+}
+function openNewDialog(){
+  resetForm();
+  dialogFormVisible.value=true
 }
 </script>
 
@@ -238,7 +291,7 @@ function changePage(newPage) {
     <div class="top-div">
       <el-row type="flex" justify="end" align="middle" style="height: 100%;">
         <el-col  style="text-align: right;">
-          <el-button type="primary" @click="dialogFormVisible = true" style="margin-right: 8px;" plain >新增</el-button>
+          <el-button type="primary" @click="openNewDialog" style="margin-right: 8px;" plain >新增</el-button>
           <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected">批量删除</el-button>
           <el-input placeholder="请输入住院名" style="width: auto; " v-model="searchText"></el-input>
           <el-button type="primary"  @click="getHospitalizationsByName" :icon="Search"></el-button>
@@ -257,10 +310,33 @@ function changePage(newPage) {
             <el-radio label="女" />
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="手机号" :label-width="formLabelWidth" prop="phone">
+          <el-input v-model="form.phone" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="亲属手机号" :label-width="formLabelWidth" prop="relativesPhone">
+          <el-input v-model="form.relativesPhone" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="床位" :label-width="formLabelWidth" prop="space">
+          <el-input v-model="form.space" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="治疗进度" :label-width="formLabelWidth" prop="progress">
+          <el-input v-model="form.progress" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="病情描述" :label-width="formLabelWidth" prop="description">
+          <el-input v-model="form.description" autocomplete="off" />
+        </el-form-item>
         <el-form-item label="科室" :label-width="formLabelWidth" prop="departmentId">
           <el-select v-model="form.departmentId" placeholder="请选择科室" @click="getDepartmentList">
             <el-option v-for="department in departmentList" :key="department.departmentId" :label="department.name" :value="department.departmentId">
             </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="住院状态" :label-width="formLabelWidth" aria-placeholder="选择住院状态" prop="status">
+          <el-select v-model="form.status" placeholder="请选择状态">
+            <el-option label="住院中" value="住院中"></el-option>
+            <el-option label="已出院" value="已出院"></el-option>
+            <el-option label="已转院" value="已转院"></el-option>
+            <el-option label="修养中" value="修养中"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="患者出生日期" :label-width="formLabelWidth" prop="birthday">
@@ -293,7 +369,13 @@ function changePage(newPage) {
         <el-table-column prop="gender" label="性别" />
         <el-table-column prop="age" label="年龄" />
         <el-table-column prop="departmentName" label="科室"/>
+        <el-table-column prop="description" label="病情描述" />
+        <el-table-column prop="phone" label="联系电话" />
+        <el-table-column prop="relativesPhone" label="亲属电话"/>
+        <el-table-column prop="space" label="床位" />
+        <el-table-column prop="status" label="住院状态" />
         <el-table-column prop="remark" label="备注" >
+
         <template #default="scope">
           <el-scrollbar style="height: 42px">
             <div>{{ scope.row.remark }}</div>

@@ -4,6 +4,7 @@ import {Search} from "@element-plus/icons-vue";
 import {onMounted, ref} from "vue";
 import {get,post} from "@/net/index"
 import {ElMessage, ElMessageBox} from "element-plus";
+import router from "@/router/index.js";
 const item = {}
 const dialogFormVisible = ref(false);
 const tableData = ref(Array.from({ length: 10 }).fill(item))
@@ -15,15 +16,19 @@ const selectedMedicineIds = ref([]);
 const pagePlaceholder = ref();
 const formLabelWidth = '140px'
 const isQuery = ref(false);
+const isNurse = ref(false);
+const isAdmin = ref(false);
+const role = ref();
 const formRef=ref();
 const form = ref({
   medicineId: '',
   name: '',
   description: '',
   price: '',
-  quantity: '',
+  quantity: 1,
   inboundTime: '',
   expirationTime: '',
+  inputQuantity: '',
 });
 const rule = ref({
   name: [
@@ -49,8 +54,26 @@ const rule = ref({
   expirationTime: [
     {type: 'date', required: true, message: '请选择生产日期', trigger: ['blur', 'change']},
   ],
+  inputQuantity: [
+    {required: true, message: '请输入出库数量', trigger: ['blur', 'change']}
+  ]
 });
 onMounted(()=>{
+  try {
+    let storageRole = JSON.parse(sessionStorage.getItem('role'))|| JSON.parse(localStorage.getItem('role'));
+    if (storageRole) {
+      role.value = storageRole;
+      if (role.value==='nurse'){
+        isNurse.value = true;
+      }
+      if (role.value === 'admin') {
+        isAdmin.value = true;
+      }
+    }
+  } catch (e){
+    ElMessage.warning('请先登录')
+    router.push('/')
+  }
   get("/api/medicine/getAll"+`?currentPage=1`,(data)=>{
     totalPages.value=data.pages
     pagePlaceholder.value=`${currentPage.value} / ${totalPages.value}`
@@ -79,6 +102,7 @@ function getMedicineByName(){
 function saveMedicine() {
   formRef.value.validate((valid) => {
     if (valid) {
+      form.value.quantity= form.value.quantity-form.value.inputQuantity;
       post("/api/medicine/save",form.value,()=>{
         if (isQuery.value) {
           getMedicineByName()
@@ -174,7 +198,24 @@ function changePage(newPage) {
   }else{
     getAllMedicine();
   }
+}
 
+function  handleOutboundQuantityChange(inputQuantity) {
+  // 仅当用户减少数量时才更新库存
+  if (inputQuantity > this.form.quantity) {
+    this.$message.error('库存不足');
+    // 重置出库数量为当前库存的最大可能值，这里假设为0
+    this.form.inputQuantity = this.form.quantity;
+  } else {
+    // 减去输入的数量
+    this.form.quantity -= inputQuantity;
+    // 如果库存小于零，显示错误并重置库存与出库数量
+    if (this.form.quantity < 0) {
+      ElMessage.error('库存不足');
+      this.form.inputQuantity += this.form.quantity; // 添加负库存回输入数量
+      this.form.quantity = 0; // 重置库存为0
+    }
+  }
 }
 </script>
 
@@ -183,8 +224,8 @@ function changePage(newPage) {
     <div class="top-div">
       <el-row type="flex" justify="end" align="middle" style="height: 100%;">
         <el-col  style="text-align: right;">
-          <el-button type="primary" @click="dialogFormVisible = true" style="margin-right: 8px;" plain >新增</el-button>
-          <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected">批量删除</el-button>
+          <el-button type="primary" @click="dialogFormVisible = true" style="margin-right: 8px;" plain v-if="isAdmin">新增</el-button>
+          <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected" v-if="isAdmin">批量删除</el-button>
           <el-input placeholder="请输入药品名" style="width: auto; " v-model="searchText"></el-input>
           <el-button type="primary"  @click="getMedicineByName" :icon="Search"></el-button>
         </el-col>
@@ -193,23 +234,26 @@ function changePage(newPage) {
 
     <el-dialog align-center v-model="dialogFormVisible" title="保存药品信息" width="500">
       <el-form :model="form" :rules="rule" ref="formRef">
-        <el-form-item label="药品名" :label-width="formLabelWidth" prop="name">
-          <el-input v-model="form.name" autocomplete="off" />
+        <el-form-item label="药品名" :label-width="formLabelWidth" prop="name" >
+          <el-input v-model="form.name" autocomplete="off" :disabled="isNurse" />
         </el-form-item>
         <el-form-item label="描述" :label-width="formLabelWidth" prop="description">
-          <el-input v-model="form.description" autocomplete="off" />
+          <el-input v-model="form.description" autocomplete="off" :disabled="isNurse"/>
         </el-form-item>
         <el-form-item label="价格" :label-width="formLabelWidth" prop="price">
-          <el-input-number v-model="form.price" :precision="2" :min="0.01" :max="999999999" :controls="false" />
+          <el-input-number v-model="form.price" :precision="2" :min="0.01" :max="999999999" :controls="false" :disabled="isNurse"/>
         </el-form-item>
-        <el-form-item label="数量" :label-width="formLabelWidth" prop="quantity">
-          <el-input-number v-model="form.quantity" :min="1" :max="999999999" :controls="false" />
+        <el-form-item label="数量" :label-width="formLabelWidth" prop="quantity" v-if="!isNurse">
+          <el-input-number v-model="form.quantity" :min="1" :max="999999999" :controls="false"/>
+        </el-form-item>
+        <el-form-item label="出库数量" :label-width="formLabelWidth" prop="inputQuantity" v-if="isNurse">
+          <el-input-number v-model="form.inputQuantity" :min="1" :max="form.quantity" :controls="false"  />
         </el-form-item>
         <el-form-item label="生产日期" :label-width="formLabelWidth" prop="inboundTime">
-          <el-date-picker v-model="form.inboundTime" type="date" placeholder="Pick a day" />
+          <el-date-picker v-model="form.inboundTime" type="date" placeholder="Pick a day" :disabled="isNurse"/>
         </el-form-item>
         <el-form-item label="过期日期" :label-width="formLabelWidth" prop="expirationTime">
-          <el-date-picker v-model="form.expirationTime" type="date" placeholder="Pick a day" />
+          <el-date-picker v-model="form.expirationTime" type="date" placeholder="Pick a day" :disabled="isNurse"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -246,8 +290,9 @@ function changePage(newPage) {
         <el-table-column label="操作" align="center">
           <template #default="scope">
             <div class="table-operation-buttons">
-              <el-button size="default" @click="handleEdit(scope.row)">编辑</el-button>
-              <el-button size="default" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button size="default" @click="handleEdit(scope.row)" v-if="isAdmin">编辑</el-button>
+              <el-button size="default" @click="handleEdit(scope.row)" v-if="isNurse">出库</el-button>
+              <el-button size="default" type="danger" @click="handleDelete(scope.row)" v-if="isAdmin">删除</el-button>
             </div>
           </template>
         </el-table-column>

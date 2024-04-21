@@ -59,6 +59,10 @@ const router = createRouter({
                     path: 'equipment',
                     name: 'index-equipment',
                     component: () => import('@/views/index/EquipmentManagePage.vue'),
+                },{
+                    path: 'schedule',
+                    name: 'index-schedule',
+                    component: () => import('@/views/index/ScheduleManagePage.vue'),
                 }
             ],
 
@@ -80,6 +84,10 @@ const router = createRouter({
                     path: 'equipment',
                     name: 'doctor-equipment',
                     component: () => import('@/views/index/EquipmentManagePage.vue'),
+                },{
+                    path: 'schedule',
+                    name: 'doctor-schedule',
+                    component: () => import('@/views/index/doctor/ScheduleManagePage.vue'),
                 }
             ]
         },{
@@ -89,11 +97,11 @@ const router = createRouter({
             children: [
                 {
                     path: 'medicine',
-                    name: 'doctor-index-medicine',
+                    name: 'nurse-medicine',
                     component: () => import('@/views/index/MedicineManagePage.vue'),
                 },{
                     path: 'hospitalizations',
-                    name: 'doctor-index-hospitalizations',
+                    name: 'nurse-hospitalizations',
                     component: () => import('@/views/index/HospitalizationsPage.vue'),
                 }
             ]

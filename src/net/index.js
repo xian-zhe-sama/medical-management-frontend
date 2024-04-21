@@ -45,6 +45,14 @@ function storeAccessToken(token, remember, expire,role,username,id) {
     }
 }
 
+function storeDoctorAccessToken(remember, doctorId) {
+    if (remember) {
+        localStorage.setItem('doctorId',JSON.stringify(doctorId))
+    }else{
+        sessionStorage.setItem('doctorId',JSON.stringify(doctorId))
+    }
+}
+
 function deleteAccessToken() {
     localStorage.removeItem(authItemName);
     sessionStorage.removeItem(authItemName);
@@ -54,6 +62,8 @@ function deleteAccessToken() {
     sessionStorage.removeItem('username');
     localStorage.removeItem('id');
     sessionStorage.removeItem('id');
+    localStorage.removeItem('doctorId')
+    sessionStorage.removeItem('doctorId')
 }
 //获取请求头
 function accessHeader(){
@@ -119,7 +129,12 @@ function login(username,password,remember,success,failure=defaultFailure){
 
     },(data)=>{
         storeAccessToken(data.token,remember,data.expire,data.role,data.username,data.id)
-        ElMessage.success(`登陆成功，欢迎${data.username}`)
+        if (data.role === 'doctor') {
+            console.log(data.id)
+            get('/api/doctor/getById'+`?accountId=`+data.id, (data) => {
+                storeDoctorAccessToken(remember,data.doctorId)
+            })}
+        ElMessage.success(`登陆成功，欢迎${data.username}`);
         success(data);
     },failure)
 }

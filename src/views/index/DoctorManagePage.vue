@@ -198,6 +198,10 @@ const rule ={
   phone: [
     {validator: validatePhoneNumber, message: '请输入正确的手机号', trigger: ['blur']},
   ],
+  assessment:[
+      {required: true, message: '请填写职称信息', trigger: ['blur', 'change']},
+  ]
+
 }
 const form = reactive({
   doctorId: '',
@@ -206,6 +210,7 @@ const form = reactive({
   departmentId: '',
   birthday: '',
   phone: '',
+  assessment: '',
 })
 
 const dialogFormVisible = ref(false)
@@ -280,18 +285,22 @@ function resetForm(){
             </el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="职称" :label-width="formLabelWidth" prop="assessment">
+          <el-input v-model="form.assessment" autocomplete="off" />
+        </el-form-item>
         <el-form-item label="性别" :label-width="formLabelWidth" prop="gender">
           <el-radio-group v-model="form.gender" >
             <el-radio label="男" />
             <el-radio label="女" />
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="生日" :label-width="formLabelWidth" prop="birthday">
-          <el-date-picker v-model="form.birthday" type="date" placeholder="Pick a day" />
-        </el-form-item>
         <el-form-item label="手机号" :label-width="formLabelWidth" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" />
         </el-form-item>
+        <el-form-item label="生日" :label-width="formLabelWidth" prop="birthday">
+          <el-date-picker v-model="form.birthday" type="date" placeholder="Pick a day" />
+        </el-form-item>
+
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -320,6 +329,7 @@ function resetForm(){
         <el-table-column prop="gender" label="性别" />
         <el-table-column prop="age" label="年龄" />
         <el-table-column prop="departmentName" label="科室" />
+        <el-table-column prop="assessment" label="职称" />
         <el-table-column prop="phone" label="电话" />
         <el-table-column label="操作" align="center">
 

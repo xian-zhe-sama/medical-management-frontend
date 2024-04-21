@@ -11,8 +11,8 @@
     </div>
     <div class="welcome-title">
       <div style="font-size: 30px;font-weight: bold">欢迎来到医疗管理系统</div>
-      <div style="margin-top: 10px">在这里你可以找到各种医疗设施</div>
-      <div style="margin-top: 5px">在这里你可以找到各个学校的医疗团队</div>
+      <div style="margin-top: 10px">高效快捷的医疗团队管理</div>
+      <div style="margin-top: 5px">全面的医疗设备管理</div>
     </div>
     <div class="right-card">
       <router-view v-slot="{Component}">

@@ -5,7 +5,7 @@ import {ElMessage} from "element-plus";
 import {
   ArrowLeft,
   ArrowRight,
-  Calendar,
+  Calendar, Clock,
   CopyDocument,
   Discount,
   EditPen,
@@ -29,11 +29,9 @@ const form = reactive({
 onMounted(() => {
   try {
     const storeUserId = localStorage.getItem('id') || sessionStorage.getItem('id');
-    console.log('storeUserId', storeUserId)
     if (storeUserId) {
       userId.value= storeUserId;
       form.id=userId.value
-      console.log(userId.value)
     }
   } catch (e){
     ElMessage.error('请先登录')
@@ -172,6 +170,9 @@ function goToHospitalizationsManagePage(){
 function goToEquipmentManagePage(){
   router.push('/index/equipment')
 }
+function goToScheduleManagePage() {
+  router.push(`/index/schedule`)
+}
 </script>
 
 <template style="margin: 0">
@@ -308,6 +309,14 @@ function goToEquipmentManagePage(){
                   </transition>
                 </template>
               </el-menu-item>
+                <el-menu-item index="8" @click="goToScheduleManagePage">
+                  <template #title>
+                    <el-icon :class="{'icon-large': isCollapsed}"><Clock /></el-icon>
+                    <transition name="fade">
+                      <el-text v-show="!isCollapsed">日程管理</el-text>
+                    </transition>
+                  </template>
+                </el-menu-item>
             </el-menu>
             <el-button type="warning" @click="toggleSidebar" :icon="!isCollapsed ? ArrowLeft : ArrowRight" style="position:relative; left: 10px"/>
           </el-scrollbar>
