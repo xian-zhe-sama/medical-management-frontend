@@ -48,6 +48,10 @@ function userLogin(){
           console.log('进入nurse')
           router.push('/nurseIndex')
         }
+        if(data.role==='pharmacist'){
+          console.log('进入pharmacist')
+          router.push('/pharmacistIndex')
+        }
       })
     }
   })

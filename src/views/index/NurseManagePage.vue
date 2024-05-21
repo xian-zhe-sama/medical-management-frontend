@@ -4,6 +4,7 @@ import {onMounted, reactive, ref} from "vue";
 import {Search} from "@element-plus/icons-vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {get, post} from "@/net"
+import router from "@/router/index.js";
 
 const item = {
 
@@ -17,6 +18,7 @@ const jumpPage = ref('')
 const selectedNurseIds = ref([])
 const pagePlaceholder = ref()
 const isQuery = ref(false)
+const isDoctor= ref(false)
 function getAllNurses() {
   get('api/nurse/getAll'+`?currentPage=${currentPage.value}`, (data) => {
     tableData.value = data.records
@@ -36,6 +38,16 @@ function getAllNurses() {
   })
 }
 onMounted(() => {
+  try {
+    let storageRole = JSON.parse(sessionStorage.getItem('role'))|| JSON.parse(localStorage.getItem('role'));
+    if (storageRole) {
+      if(storageRole.value ==='Pharmacist')
+        isDoctor.value=true;
+    }
+  } catch (e){
+    ElMessage.warning('请先登录')
+    router.push('/')
+  }
   get('api/nurse/getAll'+`?currentPage=${currentPage.value}`,(data) => {
     totalPages.value=data.pages
     tableData.value = data.records.map((record) => {
@@ -206,7 +218,14 @@ const form = reactive({
   birthday: '',
   phone: '',
 })
-
+const formInit = reactive({
+  nurseId: '',
+  name: '',
+  gender: '',
+  departmentId: '',
+  birthday: '',
+  phone: '',
+})
 const dialogFormVisible = ref(false)
 const formLabelWidth = '140px'
 const departmentList= ref([])
@@ -224,6 +243,7 @@ function saveNurse(){
   formRef.value.validate((valid)=>{
     if(valid){
       post(`/api/nurse/save`,{...form},(data)=>{
+        Object.assign(form,formInit)
         dialogFormVisible.value = false
         // this.$refs[formRef].resetFields();
         ElMessage.success("成功保存信息")
@@ -249,6 +269,11 @@ function jumpToPage() {
 }
 function resetForm(){
   formRef.value.resetFields();
+  Object.assign(form,formInit)
+}
+function handleEditCancle() {
+  Object.assign(form, formInit)
+  dialogFormVisible.value = false;
 }
 </script>
 
@@ -258,8 +283,8 @@ function resetForm(){
     <div class="top-div">
       <el-row type="flex" justify="end" align="middle" style="height: 100%;">
         <el-col  style="text-align: right;">
-          <el-button type="primary" @click="dialogFormVisible = true" style="margin-right: 8px;" plain >新增</el-button>
-          <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected">批量删除</el-button>
+          <el-button type="primary" @click="dialogFormVisible = true" style="margin-right: 8px;" plain v-if="!isDoctor" >新增</el-button>
+          <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected" >批量删除</el-button>
           <el-input placeholder="请输入姓名" style="width: auto; " v-model="searchText"></el-input>
           <el-button type="primary"  @click="getNurseByName" :icon="Search"></el-button>
         </el-col>
@@ -295,7 +320,7 @@ function resetForm(){
       <template #footer>
         <div class="dialog-footer">
           <el-button type="warning" @click="resetForm">重置</el-button>
-          <el-button @click="dialogFormVisible = false">取消</el-button>
+          <el-button @click="handleEditCancle">取消</el-button>
           <el-button type="primary" @click="saveNurse">
             提交
           </el-button>
@@ -308,7 +333,7 @@ function resetForm(){
       <el-table
           :data="tableData"
           @selection-change="handleSelectionChange"
-          style="width: 100%"
+          style="width: 100%;font-size: 17px"
       >
         <el-table-column
             type="selection"
@@ -325,8 +350,8 @@ function resetForm(){
 
           <template #default="scope">
             <div class="table-operation-buttons">
-              <el-button size="default" @click="handleEdit(scope.row)">编辑</el-button>
-              <el-button size="default" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button size="default" @click="handleEdit(scope.row)" v-if="!isDoctor" >编辑</el-button>
+              <el-button size="default" type="danger" @click="handleDelete(scope.row)" v-if="!isDoctor" >删除</el-button>
             </div>
           </template>
         </el-table-column>

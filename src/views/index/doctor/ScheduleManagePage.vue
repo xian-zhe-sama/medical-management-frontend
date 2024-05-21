@@ -22,7 +22,13 @@ const form = ref({
   doctorId: '',
   startDate: '',
   endDate: '',
-  limit: '',
+  limitPeople: '',
+});
+const formInit = ref({
+
+  startDate: '',
+  endDate: '',
+  limitPeople: '',
 });
 onMounted(()=>{
   const localDoctorId = JSON.parse(localStorage.getItem('doctorId'));
@@ -51,7 +57,7 @@ const rule = ref({
   endDate: [
     {required: true, message: '选择结束时间',  trigger: ['blur', 'change']},
   ],
-  limit:[
+  limitPeople:[
       {required: true, message: '请输入预约限额',  trigger: ['blur', 'change']},
   ]
 });
@@ -69,7 +75,7 @@ function getDepartmentList(){
 
 function getAllschedule()
 {
-  get("/api/schedule/getAll"+`?currentPage=${currentPage.value}`,(data)=>{
+  get("/api/schedule/getById"+`?doctorId=${doctorId.value}&currentPage=1`,(data)=>{
     tableData.value = data.records.map((record) => {
       console.log(record.birthday)
       // 更新记录
@@ -81,7 +87,6 @@ function getAllschedule()
     })
     totalPages.value=data.pages
     pagePlaceholder.value=`${currentPage.value} / ${totalPages.value}`
-    isQuery.value = false;
   })
 }
 
@@ -115,6 +120,7 @@ function saveSchedule() {
           getAllschedule();
         }
         ElMessage.success('保存成功')
+        Object.assign(form, formInit)
         dialogFormVisible.value = false;
       })
     }else{
@@ -125,6 +131,7 @@ function saveSchedule() {
 
 function resetForm(){
   formRef.value.resetFields();
+  Object.assign(form, formInit);
 }
 
 function deleteSelected() {
@@ -232,6 +239,11 @@ function formatDate(dateString) {
   const timeString = date.toTimeString().split(' ')[0];
   return `${year}-${month}-${day} ${timeString}`
 }
+function handleEditCancle() {
+  // console.log('取消编辑')
+  Object.assign(form.value, formInit.value)
+  dialogFormVisible.value = false;
+}
 </script>
 
 <template>
@@ -241,8 +253,8 @@ function formatDate(dateString) {
         <el-col  style="text-align: right;">
           <el-button type="primary" @click="dialogFormVisible = true" style="margin-right: 8px;" plain >新增</el-button>
           <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected">批量删除</el-button>
-          <el-input placeholder="请输入医生名称" style="width: auto; " v-model="searchText"></el-input>
-          <el-button type="primary"  @click="getScheduleByName" :icon="Search"></el-button>
+<!--          <el-input placeholder="请输入医生名称" style="width: auto; " v-model="searchText"></el-input>-->
+<!--          <el-button type="primary"  @click="getScheduleByName" :icon="Search"></el-button>-->
         </el-col>
       </el-row>
     </div>
@@ -258,14 +270,14 @@ function formatDate(dateString) {
         <el-form-item label="结束时间" :label-width="formLabelWidth" prop="endTime">
           <el-date-picker v-model="form.endDate" type="datetime" placeholder="选择值班结束时间" />
         </el-form-item>
-        <el-form-item label="预约限额" :label-width="formLabelWidth" prop="limit">
-          <el-input v-model="form.limit" type="number" />
+        <el-form-item label="预约限额" :label-width="formLabelWidth" prop="limitPeople">
+          <el-input v-model="form.limitPeople" type="number" />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="resetForm">重置</el-button>
-          <el-button @click="dialogFormVisible = false">取消</el-button>
+<!--          <el-button @click="resetForm">重置</el-button>-->
+          <el-button @click="handleEditCancle">取消</el-button>
           <el-button type="primary" @click="saveSchedule">提交</el-button>
         </div>
       </template>
@@ -274,7 +286,7 @@ function formatDate(dateString) {
       <el-table
           :data="tableData"
           @selection-change="handleSelectionChange"
-          style="width: 100%"
+          style="width: 100%;font-size:17px"
       >
         <el-table-column
             type="selection"
@@ -285,7 +297,7 @@ function formatDate(dateString) {
         <el-table-column prop="departmentName" label="科室"/>
         <el-table-column prop="startTime" label="开始时间" />
         <el-table-column prop="endTime" label="结束时间" />
-        <el-table-column prop="limit" label="预约限额" />
+        <el-table-column prop="limitPeople" label="预约限额" />
         <el-table-column label="操作" align="center">
           <template #default="scope">
             <div class="table-operation-buttons">

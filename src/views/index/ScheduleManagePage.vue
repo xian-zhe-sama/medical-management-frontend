@@ -22,6 +22,7 @@ const form = ref({
   name: '',
   status: '',
   department: '',
+  limitPeople: '',
 });
 const rule = ref({
   name: [
@@ -37,6 +38,9 @@ const rule = ref({
   departmentId: [
     {required: true, message: '请选择科室', trigger: ['blur', 'change']},
   ],
+  limitPeople:[
+    {required: true, message: '请输入限制人数', trigger: ['blur', 'change']}
+  ]
 });
 
 
@@ -236,7 +240,7 @@ function formatDate(dateString) {
       <el-row type="flex" justify="end" align="middle" style="height: 100%;">
         <el-col  style="text-align: right;">
           <el-button type="primary" @click="dialogFormVisible = true" style="margin-right: 8px;" plain disabled>新增</el-button>
-          <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected">批量删除</el-button>
+          <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected" disabled>批量删除</el-button>
           <el-input placeholder="请输入医生名称" style="width: auto; " v-model="searchText"></el-input>
           <el-button type="primary"  @click="getScheduleByName" :icon="Search"></el-button>
         </el-col>
@@ -254,6 +258,9 @@ function formatDate(dateString) {
         <el-form-item label="结束时间" :label-width="formLabelWidth" prop="endTime">
           <el-date-picker v-model="form.endTime" type="datetime" placeholder="选择值班结束时间" />
         </el-form-item>
+        <el-form-item label="预约限额" :label-width="formLabelWidth" prop="limitPeople">
+          <el-input-number v-model="form.limitPeople"  placeholder="输入预约限额" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -267,7 +274,7 @@ function formatDate(dateString) {
       <el-table
           :data="tableData"
           @selection-change="handleSelectionChange"
-          style="width: 100%"
+          style="width: 100%;font-size: 17px"
       >
         <el-table-column
             type="selection"
@@ -278,11 +285,12 @@ function formatDate(dateString) {
         <el-table-column prop="departmentName" label="科室"/>
         <el-table-column prop="startTime" label="开始时间" />
         <el-table-column prop="endTime" label="结束时间" />
+        <el-table-column prop="limitPeople" label="预约限额" />
         <el-table-column label="操作" align="center">
           <template #default="scope">
             <div class="table-operation-buttons">
-              <el-button size="default" @click="handleEdit(scope.row)">编辑</el-button>
-              <el-button size="default" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button size="default" @click="handleEdit(scope.row)" disabled>编辑</el-button>
+              <el-button size="default" type="danger" @click="handleDelete(scope.row)" disabled>删除</el-button>
             </div>
           </template>
         </el-table-column>

@@ -17,6 +17,8 @@ const formLabelWidth = '140px'
 const isQuery = ref(false);
 const formRef=ref();
 const departmentList=ref([]);
+const isEdit=ref(false)
+
 const form = reactive({
   id: '',
   username: '',
@@ -25,7 +27,14 @@ const form = reactive({
   email: '',
   role: '',
 });
-
+const formInit = reactive({
+  id: '',
+  username: '',
+  password: '',
+  password_repeat: '',
+  email: '',
+  role: '',
+});
 const validatePassword = (rule,value,callback)=>{
   if(value ===''){
     callback(new Error('请再次输入密码'))
@@ -49,7 +58,7 @@ const validateUsername = (rule,value,callback) =>{
 const rule = {
   username: [
     {validator: validateUsername, trigger: ['blur', 'change']},
-    {min: 2, max: 8, message: '用户名的长度必须在2-8个之间', trigger: ['blur', 'change']}
+    {min: 2, max: 12, message: '用户名的长度必须在2-12个之间', trigger: ['blur', 'change']}
   ],
   password: [
     {required: true, message: '请输入密码', trigger: ['blur']},
@@ -122,6 +131,9 @@ function calculateRole(role) {
   if (role === 'user') {
     return '普通用户'
   }
+  if (role === 'pharmacist') {
+    return '药品管理员'
+  }
 }
 
 function formatDate(dateString) {
@@ -173,17 +185,33 @@ function getAccountByName(){
 function saveAccount() {
   formRef.value.validate((valid) => {
     if (valid) {
-      post("/api/account/save",form,()=>{
-        if (isQuery.value) {
-          getAccountByName()
-        }else{
-          getAllaccount();
-        }
-        ElMessage.success('保存成功')
-        dialogFormVisible.value = false;
-      },(message)=>{
-        ElMessage.warning(message);
-      })
+      if(isEdit.value){
+        post("/api/account/change",form,()=>{
+          if (isQuery.value) {
+            getAccountByName()
+          }else{
+            getAllaccount();
+          }
+          ElMessage.success('保存成功')
+          Object.assign(form, formInit)
+          dialogFormVisible.value = false;
+        },(message)=>{
+          ElMessage.warning(message);
+        })
+      }else {
+        post("/api/account/save",form,()=>{
+          if (isQuery.value) {
+            getAccountByName()
+          }else{
+            getAllaccount();
+          }
+          ElMessage.success('保存成功')
+          Object.assign(form, formInit)
+          dialogFormVisible.value = false;
+        },(message)=>{
+          ElMessage.warning(message);
+        })
+      }
     }else{
       ElMessage.warning('请填写正确的信息')
     }
@@ -192,6 +220,7 @@ function saveAccount() {
 
 function resetForm(){
   formRef.value.resetFields();
+  Object.assign(form, formInit)
 }
 
 function deleteSelected() {
@@ -255,11 +284,20 @@ function handleSelectionChange(selection) {
   // 将选择的账号映射并更新到selectedDoctorIds中
   selectedAccountIds.value = selection.map((item) => item.id)
 }
+function handleEditCancle() {
+  Object.assign(form, formInit)
+  dialogFormVisible.value = false;
+}
 function handleEdit(account) {
+  isEdit.value=true
   Object.assign(form, account)
-  this.dialogFormVisible = true;
+  dialogFormVisible.value = true;
 }
 
+function addNew() {
+  isEdit.value = false;
+  dialogFormVisible.value = true;
+}
 //页面跳转函数，默认为第一页，默认每页10条数据
 function changePage(newPage) {
   console.log(newPage)
@@ -279,7 +317,7 @@ function changePage(newPage) {
     <div class="top-div">
       <el-row type="flex" justify="end" align="middle" style="height: 100%;">
         <el-col  style="text-align: right;">
-          <el-button type="primary" @click="dialogFormVisible = true" style="margin-right: 8px;" plain >新增</el-button>
+          <el-button type="primary" @click="addNew" style="margin-right: 8px;" plain >新增</el-button>
           <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected">批量删除</el-button>
           <el-input placeholder="请输入账号名" style="width: auto; " v-model="searchText"></el-input>
           <el-button type="primary"  @click="getAccountByName" :icon="Search"></el-button>
@@ -289,21 +327,21 @@ function changePage(newPage) {
 
     <el-dialog align-center v-model="dialogFormVisible" title="保存用户信息" width="500">
       <el-form :model="form" :rules="rule" ref="formRef">
-        <el-form-item prop="username">
+        <el-form-item prop="username" v-if="!isEdit" >
           <el-input v-model="form.username" minlength="2" maxlength="8" type="text" placeholder="用户名" autocomplete="off">
             <template #prefix>
               <el-icon><User /></el-icon>
             </template>
           </el-input>
         </el-form-item>
-        <el-form-item prop="password">
+        <el-form-item prop="password" v-if="!isEdit">
           <el-input v-model="form.password" minlength="6" maxlength="20" type="password" placeholder="密码" autocomplete="off">
             <template #prefix>
               <el-icon><Lock /></el-icon>
             </template>
           </el-input>
         </el-form-item>
-        <el-form-item prop="password_repeat">
+        <el-form-item prop="password_repeat" v-if="!isEdit" >
           <el-input v-model="form.password_repeat" minlength="6" maxlength="20" type="password" placeholder="重复密码">
             <template #prefix>
               <el-icon><Lock /></el-icon>
@@ -315,10 +353,11 @@ function changePage(newPage) {
             <el-option label="管理员" value="admin"></el-option>
             <el-option label="医生" value="doctor"></el-option>
             <el-option label="护士" value="nurse"></el-option>
+            <el-option label="药品管理员" value="pharmacist"></el-option>
             <el-option label="用户" value="user"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item prop="email">
+        <el-form-item prop="email" v-if="!isEdit" :disabled="isEdit">
           <el-input v-model="form.email"  type="email" placeholder="电子邮箱">
             <template #prefix>
               <el-icon><Message /></el-icon>
@@ -329,7 +368,7 @@ function changePage(newPage) {
       <template #footer>
         <div class="dialog-footer">
           <el-button type="warning" @click="resetForm">重置</el-button>
-          <el-button @click="dialogFormVisible = false">取消</el-button>
+          <el-button @click="handleEditCancle">取消</el-button>
           <el-button type="primary" @click="saveAccount">提交</el-button>
         </div>
       </template>
@@ -338,7 +377,7 @@ function changePage(newPage) {
       <el-table
           :data="tableData"
           @selection-change="handleSelectionChange"
-          style="width: 100%"
+          style="width: 100%;font-size: 17px"
       >
         <el-table-column
             type="selection"

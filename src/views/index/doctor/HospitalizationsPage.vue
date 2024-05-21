@@ -291,8 +291,8 @@ function openNewDialog(){
     <div class="top-div">
       <el-row type="flex" justify="end" align="middle" style="height: 100%;">
         <el-col  style="text-align: right;">
-          <el-button type="primary" @click="openNewDialog" style="margin-right: 8px;" plain >新增</el-button>
-<!--          <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected" >批量删除</el-button>-->
+          <el-button type="primary" @click="openNewDialog" style="margin-right: 8px;" plain v-if="false">新增</el-button>
+          <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected" v-if="false">批量删除</el-button>
           <el-input placeholder="请输入住院名" style="width: auto; " v-model="searchText"></el-input>
           <el-button type="primary"  @click="getHospitalizationsByName" :icon="Search"></el-button>
         </el-col>
@@ -385,8 +385,8 @@ function openNewDialog(){
         <el-table-column label="操作" align="center">
           <template #default="scope">
             <div class="table-operation-buttons">
-              <el-button size="default" @click="handleEdit(scope.row)" >编辑</el-button>
-<!--              <el-button size="default" type="danger" @click="handleDelete(scope.row)" >删除</el-button>-->
+              <el-button size="default" @click="handleEdit(scope.row)" v-if="false">编辑</el-button>
+              <el-button size="default" type="danger" @click="handleDelete(scope.row)" v-if="false">删除</el-button>
             </div>
           </template>
         </el-table-column>

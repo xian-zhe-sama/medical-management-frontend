@@ -8,8 +8,6 @@ import {
   ArrowRight,
   Calendar,
   Clock,
-  CopyDocument,
-  Discount,
   Filter, Lock,
   Setting, SuitcaseLine,
   User
@@ -41,7 +39,7 @@ onMounted(() => {
     router.push('/')
   }
 
-  router.push(`/doctorIndex/hospitalizations`)
+  router.push(`/pharmacistIndex/hospitalizations`)
 })
 const validateUsername = (rule,value,callback) =>{
   if (value === '') {
@@ -150,19 +148,17 @@ const userLogout = ()=>{
 }
 
 function goToMedicineManagePage(){
-  router.push(`/doctorIndex/medicine`)
+  router.push(`/pharmacistIndex/medicine`)
 }
 function goToHospitalizationsPage(){
-  router.push(`/doctorIndex/hospitalizations`)
+  router.push(`/pharmacistIndex/hospitalizations`)
 }
+
 function goToScheduleManagePage() {
-  router.push(`/doctorIndex/schedule`)
+  router.push(`/pharmacistIndex/schedule`)
 }
 function goToEquipmentManagePage(){
-  router.push('/doctorIndex/equipment')
-}
-function goToNurseManagePage(){
-  router.push('/doctorIndex/nurse')
+  router.push('/pharmacistIndex/equipment')
 }
 </script>
 
@@ -241,55 +237,18 @@ function goToNurseManagePage(){
           <!--        </div>-->
           <el-scrollbar>
             <el-menu :default-active="['1']" background-color="#f3d19e" >
-              <el-menu-item index="1" @click="goToScheduleManagePage">
-                <template #title>
-                  <el-icon :class="{'icon-large': isCollapsed}"><Clock /></el-icon>
-                  <transition name="fade">
-                    <el-text v-show="!isCollapsed">日程管理</el-text>
-                  </transition>
-                </template>
-              </el-menu-item>
-              <!-- 医生信息管理菜单 -->
-              <el-menu-item index="2" @click="goToHospitalizationsPage">
-                <template #title>
-                  <el-icon :class="{'icon-large': isCollapsed}"><Calendar /></el-icon>
-                  <transition name="fade">
-                    <el-text v-show="!isCollapsed">住院管理</el-text>
-                  </transition>
-                </template>
-              </el-menu-item>
-              <el-menu-item index="3" @click="goToEquipmentManagePage">
-                <template #title>
-                  <el-icon :class="{'icon-large': isCollapsed}"><SuitcaseLine /></el-icon>
-                  <transition name="fade">
-                    <el-text v-show="!isCollapsed">设备信息</el-text>
-                  </transition>
-                </template>
-              </el-menu-item>
-              <el-menu-item index="4" @click="goToMedicineManagePage">
+              <el-menu-item index="1" @click="goToMedicineManagePage">
                 <template #title>
                   <el-icon :class="{'icon-large': isCollapsed}"><Filter /></el-icon>
                   <transition name="fade">
-                    <el-text v-show="!isCollapsed">药品信息</el-text>
-                  </transition>
-                </template>
-              </el-menu-item>
-              <el-menu-item index="5" @click="goToNurseManagePage">
-                <template #title>
-                  <el-icon :class="{'icon-large': isCollapsed}"><CopyDocument /></el-icon>
-                  <transition name="fade">
-                    <el-text v-show="!isCollapsed">护士信息</el-text>
+                    <el-text v-show="!isCollapsed">药品管理</el-text>
                   </transition>
                 </template>
               </el-menu-item>
             </el-menu>
             <el-button type="warning" @click="toggleSidebar" :icon="!isCollapsed ? ArrowLeft : ArrowRight" style="position:relative; left: 10px"/>
           </el-scrollbar>
-
-
-
         </el-aside>
-
 
         <el-main style="min-height:calc(100vh - 80px)">
           <router-view>

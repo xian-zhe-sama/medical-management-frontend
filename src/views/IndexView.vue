@@ -9,7 +9,7 @@ import {
   CopyDocument,
   Discount,
   EditPen,
-  Filter, Lock, Message, Notebook,
+  Filter, Grape, Lock, Message, Notebook,
   Setting, SuitcaseLine,
   User
 } from "@element-plus/icons-vue";
@@ -173,6 +173,10 @@ function goToEquipmentManagePage(){
 function goToScheduleManagePage() {
   router.push(`/index/schedule`)
 }
+
+function goToPharmacistManagePage() {
+  router.push(`/index/pharmacist`)
+}
 </script>
 
 <template style="margin: 0">
@@ -210,7 +214,7 @@ function goToScheduleManagePage() {
       <el-dialog align-center v-model="dialogFormVisible" title="修改个人信息" width="500">
         <el-form :model="form" :rules="rule" ref="formRef" >
           <el-form-item prop="username">
-            <el-input v-model="form.username" minlength="2" maxlength="8" type="text" placeholder="用户名" autocomplete="off">
+            <el-input v-model="form.username" minlength="2" maxlength="8" type="text" placeholder="用户名" autocomplete="off" hidden>
               <template #prefix>
                 <el-icon><User /></el-icon>
               </template>
@@ -269,7 +273,15 @@ function goToScheduleManagePage() {
                   </transition>
                 </template>
               </el-menu-item>
-              <el-menu-item index="3" @click="goToAccountManagePage">
+              <el-menu-item index="3" @click="goToPharmacistManagePage">
+                <template #title>
+                  <el-icon :class="{'icon-large': isCollapsed}"><Grape /></el-icon>
+                  <transition name="fade">
+                    <el-text v-show="!isCollapsed">药品管理员</el-text>
+                  </transition>
+                </template>
+              </el-menu-item>
+              <el-menu-item index="4" @click="goToAccountManagePage">
                 <template #title>
                   <el-icon :class="{'icon-large': isCollapsed}"><Notebook/></el-icon>
                   <transition name="fade">
@@ -277,7 +289,7 @@ function goToScheduleManagePage() {
                   </transition>
                 </template>
               </el-menu-item>
-              <el-menu-item index="4" @click="goToDepartmentManagePage">
+              <el-menu-item index="5" @click="goToDepartmentManagePage">
                 <template #title>
                   <el-icon :class="{'icon-large': isCollapsed}"><Discount/></el-icon>
                   <transition name="fade">
@@ -285,23 +297,23 @@ function goToScheduleManagePage() {
                   </transition>
                 </template>
               </el-menu-item>
-              <el-menu-item index="5" @click="goToHospitalizationsManagePage">
-                <template #title>
-                  <el-icon :class="{'icon-large': isCollapsed}"><Calendar /></el-icon>
-                  <transition name="fade">
-                    <el-text v-show="!isCollapsed">住院管理</el-text>
-                  </transition>
-                </template>
-              </el-menu-item>
-              <el-menu-item index="6" @click="goToMedicineManagePage">
-                <template #title>
-                  <el-icon :class="{'icon-large': isCollapsed}"><Filter /></el-icon>
-                  <transition name="fade">
-                    <el-text v-show="!isCollapsed">药品管理</el-text>
-                  </transition>
-                </template>
-              </el-menu-item>
-              <el-menu-item index="7" @click="goToEquipmentManagePage">
+<!--              <el-menu-item index="6" @click="goToHospitalizationsManagePage">-->
+<!--                <template #title>-->
+<!--                  <el-icon :class="{'icon-large': isCollapsed}"><Calendar /></el-icon>-->
+<!--                  <transition name="fade">-->
+<!--                    <el-text v-show="!isCollapsed">住院管理</el-text>-->
+<!--                  </transition>-->
+<!--                </template>-->
+<!--              </el-menu-item>-->
+<!--              <el-menu-item index="7" @click="goToMedicineManagePage">-->
+<!--                <template #title>-->
+<!--                  <el-icon :class="{'icon-large': isCollapsed}"><Filter /></el-icon>-->
+<!--                  <transition name="fade">-->
+<!--                    <el-text v-show="!isCollapsed">药品管理</el-text>-->
+<!--                  </transition>-->
+<!--                </template>-->
+<!--              </el-menu-item>-->
+              <el-menu-item index="8" @click="goToEquipmentManagePage">
                 <template #title>
                   <el-icon :class="{'icon-large': isCollapsed}"><SuitcaseLine /></el-icon>
                   <transition name="fade">
@@ -309,11 +321,11 @@ function goToScheduleManagePage() {
                   </transition>
                 </template>
               </el-menu-item>
-                <el-menu-item index="8" @click="goToScheduleManagePage">
+                <el-menu-item index="9" @click="goToScheduleManagePage">
                   <template #title>
                     <el-icon :class="{'icon-large': isCollapsed}"><Clock /></el-icon>
                     <transition name="fade">
-                      <el-text v-show="!isCollapsed">日程管理</el-text>
+                      <el-text v-show="!isCollapsed">日程查看</el-text>
                     </transition>
                   </template>
                 </el-menu-item>

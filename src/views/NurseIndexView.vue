@@ -182,7 +182,7 @@ function goToHospitalizationsPage(){
       <el-dialog align-center v-model="dialogFormVisible" title="修改个人信息" width="500">
         <el-form :model="form" :rules="rule" ref="formRef" >
           <el-form-item prop="username">
-            <el-input v-model="form.username" minlength="2" maxlength="8" type="text" placeholder="用户名" autocomplete="off">
+            <el-input v-model="form.username" minlength="2" maxlength="8" type="text" placeholder="用户名" autocomplete="off" hidden>
               <template #prefix>
                 <el-icon><User /></el-icon>
               </template>
@@ -228,14 +228,6 @@ function goToHospitalizationsPage(){
                   <el-icon :class="{'icon-large': isCollapsed}"><Calendar /></el-icon>
                   <transition name="fade">
                     <el-text v-show="!isCollapsed">住院管理</el-text>
-                  </transition>
-                </template>
-              </el-menu-item>
-              <el-menu-item index="2" @click="goToMedicineManagePage">
-                <template #title>
-                  <el-icon :class="{'icon-large': isCollapsed}"><Filter /></el-icon>
-                  <transition name="fade">
-                    <el-text v-show="!isCollapsed">药品管理</el-text>
                   </transition>
                 </template>
               </el-menu-item>

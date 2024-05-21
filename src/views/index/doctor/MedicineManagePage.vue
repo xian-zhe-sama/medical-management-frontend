@@ -28,12 +28,19 @@ const tableRowClassName=({row})=>{
   if (expirationDate < currentDate) {
     return 'expired-row';
   }
-  if(row.quantity<=0){
-    return 'noQuantity-row';
-  }
   return '';
 }
 const form = ref({
+  medicineId: '',
+  name: '',
+  description: '',
+  price: '',
+  quantity: 1,
+  inboundTime: '',
+  expirationTime: '',
+  inputQuantity: '',
+});
+const formInit = ref({
   medicineId: '',
   name: '',
   description: '',
@@ -122,6 +129,7 @@ function saveMedicine() {
           getAllMedicine();
         }
         ElMessage.success('保存成功')
+        Object.assign(form.value, formInit.value)
         dialogFormVisible.value = false;
       })
     }else{
@@ -132,6 +140,7 @@ function saveMedicine() {
 
 function resetForm(){
   formRef.value.resetFields();
+  Object.assign(form.value, formInit.value)
 }
 
 function deleteSelected() {
@@ -242,6 +251,10 @@ function  handleOutboundQuantityChange(inputQuantity) {
     }
   }
 }
+function handleEditCancle() {
+  Object.assign(form.value, formInit.value)
+  dialogFormVisible.value = false;
+}
 </script>
 
 <template>
@@ -249,8 +262,6 @@ function  handleOutboundQuantityChange(inputQuantity) {
     <div class="top-div">
       <el-row type="flex" justify="end" align="middle" style="height: 100%;">
         <el-col  style="text-align: right;">
-          <el-button type="primary" @click="handleEditIn()" style="margin-right: 8px;" plain v-if="!isPharmacist">入库</el-button>
-          <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected" v-if="!isPharmacist">批量删除</el-button>
           <el-input placeholder="请输入药品名" style="width: auto; " v-model="searchText"></el-input>
           <el-button type="primary"  @click="getMedicineByName" :icon="Search"></el-button>
         </el-col>
@@ -271,7 +282,7 @@ function  handleOutboundQuantityChange(inputQuantity) {
         <el-form-item label="数量" :label-width="formLabelWidth" prop="quantity" v-if="!isOut">
           <el-input-number v-model="form.quantity" :min="1" :max="999999999" :controls="false"/>
         </el-form-item>
-        <el-form-item label="出库数量" :label-width="formLabelWidth" prop="inputQuantity" v-if="isOut" :disabled="!isOut" >
+        <el-form-item label="出库数量" :label-width="formLabelWidth" prop="inputQuantity" v-if="isOut" :disabled="!isOut">
           <el-input-number v-model="form.inputQuantity" :min="1" :max="form.quantity" :controls="false"  />
         </el-form-item>
         <el-form-item label="生产日期" :label-width="formLabelWidth" prop="inboundTime">
@@ -284,8 +295,8 @@ function  handleOutboundQuantityChange(inputQuantity) {
       <template #footer>
         <div class="dialog-footer">
           <el-button type="warning" @click="resetForm">重置</el-button>
-          <el-button @click="dialogFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="saveMedicine" >提交</el-button>
+          <el-button @click="handleEditCancle">取消</el-button>
+          <el-button type="primary" @click="saveMedicine">提交</el-button>
         </div>
       </template>
     </el-dialog>
@@ -314,15 +325,6 @@ function  handleOutboundQuantityChange(inputQuantity) {
         <el-table-column prop="quantity" label="数量" />
         <el-table-column prop="inboundTime" label="生产日期" />
         <el-table-column prop="expirationTime" label="过期日期" />
-        <el-table-column label="操作" align="center" v-if="!isPharmacist">
-          <template #default="scope">
-            <div class="table-operation-buttons">
-              <el-button size="default" @click="handleEdit(scope.row)" v-if="!isPharmacist">编辑</el-button>
-              <el-button size="default" @click="handleEditOut(scope.row)" v-if="!isPharmacist">出库</el-button>
-              <el-button size="default" type="danger" @click="handleDelete(scope.row)" v-if="!isPharmacist">删除</el-button>
-            </div>
-          </template>
-        </el-table-column>
       </el-table>
     </el-scrollbar>
     <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
@@ -351,9 +353,5 @@ function  handleOutboundQuantityChange(inputQuantity) {
 }
 ::v-deep .el-table .expired-row{
   background-color: var(--el-color-danger-light-5);
-}
-
-::v-deep .el-table .noQuantity-row{
-  background-color: var(--el-color-danger-light-3);
 }
 </style>

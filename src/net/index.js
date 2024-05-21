@@ -28,7 +28,7 @@ function takeAccessToken() {
     // ElMessage.success(`成功获得本地token${authObj.token}`)
 }
 //将用户信息存入session
-function storeAccessToken(token, remember, expire,role,username,id) {
+function storeAccessToken(token, remember, expire,role,username,id,departmentId) {
     const authObj = {token:token, expire: expire}
     //存到storage里要以字符串的形式
     const str = JSON.stringify(authObj)
@@ -37,19 +37,23 @@ function storeAccessToken(token, remember, expire,role,username,id) {
         localStorage.setItem('role',JSON.stringify(role))
         localStorage.setItem('username',JSON.stringify(username))
         localStorage.setItem('id',JSON.stringify(id))
+
     }else{
         sessionStorage.setItem(authItemName,str)
         sessionStorage.setItem('role',JSON.stringify(role))
         sessionStorage.setItem('username',JSON.stringify(username))
         sessionStorage.setItem('id',JSON.stringify(id))
+
     }
 }
 
-function storeDoctorAccessToken(remember, doctorId) {
+function storeDoctorAccessToken(remember, doctorId,departmentId) {
     if (remember) {
         localStorage.setItem('doctorId',JSON.stringify(doctorId))
+        localStorage.setItem('departmentId',JSON.stringify(departmentId))
     }else{
         sessionStorage.setItem('doctorId',JSON.stringify(doctorId))
+        sessionStorage.setItem('departmentId',JSON.stringify(departmentId))
     }
 }
 
@@ -128,13 +132,19 @@ function login(username,password,remember,success,failure=defaultFailure){
         'Content-Type': 'application/x-www-form-urlencoded',
 
     },(data)=>{
-        storeAccessToken(data.token,remember,data.expire,data.role,data.username,data.id)
+        storeAccessToken(data.token,remember,data.expire,data.role,data.username,data.id,data.departmentId)
         if (data.role === 'doctor') {
             console.log(data.id)
             get('/api/doctor/getById'+`?accountId=`+data.id, (data) => {
-                storeDoctorAccessToken(remember,data.doctorId)
+                storeDoctorAccessToken(remember,data.doctorId,data.departmentId)
+                console.log('departmentid',data.departmentId)
             })}
-        ElMessage.success(`登陆成功，欢迎${data.username}`);
+        if(data.role!=='user'){
+            ElMessage.success(`登陆成功，欢迎${data.username}`);
+        }else{
+            ElMessage.warning(`登陆失败，请联系管理员获得权限`);
+        }
+
         success(data);
     },failure)
 }

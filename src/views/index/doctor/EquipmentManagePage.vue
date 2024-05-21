@@ -27,7 +27,6 @@ const form = ref({
   department: '',
 })
 const formInit = ref({
-  equipmentId: '',
   name: '',
   status: '',
   department: '',
@@ -120,7 +119,7 @@ function saveEquipment() {
 
 function resetForm(){
   formRef.value.resetFields();
-  Object.assign(form.value, formInit.value)
+  Object.assign(form, formInit)
 }
 
 function deleteSelected() {
@@ -223,10 +222,10 @@ function handleEditCancle() {
     <el-dialog align-center v-model="dialogFormVisible" title="保存设备信息" width="500">
       <el-form :model="form" :rules="rule" ref="formRef">
         <el-form-item label="设备名称" :label-width="formLabelWidth" prop="name" >
-          <el-input v-model="form.name" autocomplete="off" />
+          <el-input v-model="form.name" autocomplete="off" disabled/>
         </el-form-item>
         <el-form-item label="科室" :label-width="formLabelWidth" prop="departmentId" >
-          <el-select v-model="form.departmentId" placeholder="请选择科室" @click="getDepartmentList" >
+          <el-select v-model="form.departmentId" placeholder="请选择科室" @click="getDepartmentList" disabled>
             <el-option v-for="department in departmentList" :key="department.departmentId" :label="department.name" :value="department.departmentId">
             </el-option>
           </el-select>
@@ -241,7 +240,6 @@ function handleEditCancle() {
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="resetForm">重置</el-button>
           <el-button @click="handleEditCancle">取消</el-button>
           <el-button type="primary" @click="saveEquipment">提交</el-button>
         </div>

@@ -63,6 +63,10 @@ const router = createRouter({
                     path: 'schedule',
                     name: 'index-schedule',
                     component: () => import('@/views/index/ScheduleManagePage.vue'),
+                },{
+                    path: 'pharmacist',
+                    name: 'index-pharmacist',
+                    component: () => import('@/views/index/PharmacistManagePage.vue'),
                 }
             ],
 
@@ -75,19 +79,23 @@ const router = createRouter({
                 {
                     path: 'medicine',
                     name: 'doctor-index-medicine',
-                    component: () => import('@/views/index/MedicineManagePage.vue'),
+                    component: () => import('@/views/index/doctor/MedicineManagePage.vue'),
                 },{
                     path: 'hospitalizations',
                     name: 'doctor-index-hospitalizations',
-                    component: () => import('@/views/index/HospitalizationsPage.vue'),
+                    component: () => import('@/views/index/doctor/HospitalizationsPage.vue'),
                 },{
                     path: 'equipment',
                     name: 'doctor-equipment',
-                    component: () => import('@/views/index/EquipmentManagePage.vue'),
+                    component: () => import('@/views/index/doctor/EquipmentManagePage.vue'),
                 },{
                     path: 'schedule',
                     name: 'doctor-schedule',
                     component: () => import('@/views/index/doctor/ScheduleManagePage.vue'),
+                },{
+                    path: 'nurse',
+                    name: 'doctor-nurse',
+                    component: () => import('@/views/index/doctor/NurseManagePage.vue'),
                 }
             ]
         },{
@@ -103,6 +111,17 @@ const router = createRouter({
                     path: 'hospitalizations',
                     name: 'nurse-hospitalizations',
                     component: () => import('@/views/index/HospitalizationsPage.vue'),
+                }
+            ]
+        },{
+            path: '/pharmacistIndex',
+            name: 'pharmacistIndex',
+            component: () => import('@/views/PharmacistIndexView.vue'),
+            children: [
+                {
+                    path: 'medicine',
+                    name: 'pharmacist-medicine',
+                    component: () => import('@/views/index/MedicineManagePage.vue'),
                 }
             ]
         }
@@ -125,6 +144,8 @@ router.beforeEach((to,from,next)=>{
             next('/doctorIndex');
         if(localRole==='nurse'||sessionRole==='nurse')
             next('/nurseIndex');
+        if(localRole==='pharmacist'||sessionRole==='pharmacist')
+            next('/pharmacistIndex');
         //已登录进入主界面,进入登录页面自动进入主界面
         next('/index');
     }else if (to.fullPath.startsWith('/index') && isUnauthorized) {

@@ -15,12 +15,12 @@ const formRef = ref();
 const currentPage = ref(1)
 const totalPages =  ref(0)
 const jumpPage = ref('')
-const selectedDoctorIds = ref([])
+const selectedPharmacistIds = ref([])
 const pagePlaceholder = ref()
 const isQuery = ref(false)
-function getAllDoctors() {
+function getAllPharmacists() {
   console.log('currentPage:' + currentPage.value);
-  get('api/doctor/getAll'+`?currentPage=${currentPage.value}`, (data) => {
+  get('api/pharmacist/getAll'+`?currentPage=${currentPage.value}`, (data) => {
     isQuery.value=false
     totalPages.value=data.pages
     if(jumpPage.value!==''){
@@ -37,7 +37,7 @@ function getAllDoctors() {
   })
 }
 onMounted(() => {
-  get('api/doctor/getAll'+`?currentPage=${currentPage.value}`,(data) => {
+  get('api/pharmacist/getAll'+`?currentPage=${currentPage.value}`,(data) => {
     tableData.value = data.records.map((record) => {
       // 更新记录
       return {
@@ -77,78 +77,75 @@ function changePage(newPage) {
   currentPage.value = newPage
   jumpPage.value=newPage
   if (isQuery.value) {
-    getDoctorByName()
+    getPharmacistByName()
   }else{
-    getAllDoctors();
+    getAllPharmacists();
   }
 }
 
 
 /**
  * 处理选择项变化的事件处理器。
- * @param {Array} selection - 用户选择的医生列表，每个项包含一个doctorId。
+ * @param {Array} selection - 用户选择的药品管理员列表，每个项包含一个pharmacistId。
  */
 function handleSelectionChange(selection) {
-  // 将选择的医生映射并更新到selectedDoctorIds中
-  selectedDoctorIds.value = selection.map((item) => item.doctorId)
+  // 将选择的药品管理员映射并更新到selectedPharmacistIds中
+  selectedPharmacistIds.value = selection.map((item) => item.pharmacistId)
 }
-function handleEditCancle() {
-  Object.assign(form, formInit)
-  dialogFormVisible.value = false;
+
+function handleEdit(pharmacist) {
+  Object.assign(form, pharmacist)
+  this.dialogFormVisible = true;
 }
-function handleEdit(doctor) {
-  Object.assign(form, doctor)
-  dialogFormVisible.value = true;
-}
-function handleDelete(doctor) {
-  ElMessageBox.confirm('确定要删除该医生吗？', '提示', {
+function handleDelete(pharmacist) {
+  ElMessageBox.confirm('确定要删除该药品管理员吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    console.log(doctor)
-    post('api/doctor/deleteById',doctor,()=>{
+    console.log(pharmacist)
+    post('api/pharmacist/deleteById',pharmacist,()=>{
       ElMessage.success('删除成功')
       if (isQuery.value) {
-        getDoctorByName()
+        getPharmacistByName()
       }else {
-        getAllDoctors();
+        getAllPharmacists();
       }
     })
-    console.log('删除医生：', doctor);
+    console.log('删除药品管理员：', pharmacist);
   }).catch(() => {
     // 取消删除逻辑
   });
 }
 function deleteSelected() {
-  if (selectedDoctorIds.value.length === 0) {
-    ElMessage.warning('请先选择要删除的医生');
+  if (selectedPharmacistIds.value.length === 0) {
+    ElMessage.warning('请先选择要删除的药品管理员');
   }else {
-    ElMessageBox.confirm('确定要删除选中的医生吗？', '提示', {
+    ElMessageBox.confirm('确定要删除选中的药品管理员吗？', '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning',
     }).then(() => {
-      post('api/doctor/batchDelete',selectedDoctorIds.value,()=>{
+      post('api/pharmacist/batchDelete',selectedPharmacistIds.value,()=>{
         ElMessage.success('删除成功')
         if (isQuery.value) {
-          getDoctorByName();
+          getPharmacistByName();
         } else {
-          getAllDoctors();
+          getAllPharmacists();
         }
 
       })
     })
   }
-  console.log('Selected doctor IDs:', selectedDoctorIds.value);
+  console.log('Selected pharmacist IDs:', selectedPharmacistIds.value);
 }
 
-function getDoctorByName() {
+function getPharmacistByName() {
   if (!isQuery.value) {
     currentPage.value=1;
   }
   console.log(searchText.value)
-  get('api/doctor/getByName'+`?name=${searchText.value}`+`&currentPage=${currentPage.value}`,(data) => {
+  get('api/pharmacist/getByName'+`?name=${searchText.value}`+`&currentPage=${currentPage.value}`,(data) => {
     totalPages.value = data.pages
     tableData.value = data.records.map((record) => {
       // 更新记录
@@ -202,12 +199,12 @@ const rule ={
     {validator: validatePhoneNumber, message: '请输入正确的手机号', trigger: ['blur']},
   ],
   assessment:[
-      {required: true, message: '请填写职称信息', trigger: ['blur', 'change']},
+    {required: true, message: '请填写职称信息', trigger: ['blur', 'change']},
   ]
 
 }
 const form = reactive({
-  doctorId: '',
+  pharmacistId: '',
   name: '',
   gender: '',
   departmentId: '',
@@ -216,7 +213,7 @@ const form = reactive({
   assessment: '',
 })
 const formInit = reactive({
-  doctorId: '',
+  pharmacistId: '',
   name: '',
   gender: '',
   departmentId: '',
@@ -236,18 +233,19 @@ function getDepartmentList(){
     ElMessage.warning("获取科室列表失败",message)
   })
 }
-//保存医生
-function saveDoctor(){
+//保存药品管理员
+function savePharmacist(){
   formRef.value.validate((valid)=>{
     if(valid){
-      post(`/api/doctor/save`,{...form},(data)=>{
+      post(`/api/pharmacist/save`,{...form},(data)=>{
+        Object.assign(form, formInit)
         dialogFormVisible.value = false
         // this.$refs[formRef].resetFields();
         ElMessage.success("成功保存信息")
         if(isQuery.value){
-          getDoctorByName()
+          getPharmacistByName()
         }else {
-          getAllDoctors()
+          getAllPharmacists()
         }
       })
     }else {
@@ -271,6 +269,10 @@ function resetForm(){
   formRef.value.resetFields();
   Object.assign(form, formInit)
 }
+function handleEditCancle() {
+  Object.assign(form, formInit)
+  dialogFormVisible.value = false;
+}
 </script>
 
 
@@ -282,23 +284,14 @@ function resetForm(){
           <el-button type="primary" @click="dialogFormVisible = true" style="margin-right: 8px;" plain >新增</el-button>
           <el-button type="danger" style="margin-right: 8px;" plain @click="deleteSelected">批量删除</el-button>
           <el-input placeholder="请输入姓名" style="width: auto; " v-model="searchText"></el-input>
-          <el-button type="primary"  @click="getDoctorByName" :icon="Search"></el-button>
+          <el-button type="primary"  @click="getPharmacistByName" :icon="Search"></el-button>
         </el-col>
       </el-row>
     </div>
-    <el-dialog align-center v-model="dialogFormVisible" title="保存医生信息" width="500">
+    <el-dialog align-center v-model="dialogFormVisible" title="保存药品管理员信息" width="500">
       <el-form :model="form" :rules="rule" ref="formRef">
         <el-form-item label="姓名" :label-width="formLabelWidth" prop="name">
           <el-input v-model="form.name" autocomplete="off" />
-        </el-form-item>
-        <el-form-item label="科室" :label-width="formLabelWidth" prop="departmentId">
-          <el-select v-model="form.departmentId" placeholder="请选择科室" @click="getDepartmentList">
-            <el-option v-for="department in departmentList" :key="department.departmentId" :label="department.name" :value="department.departmentId">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="职称" :label-width="formLabelWidth" prop="assessment">
-          <el-input v-model="form.assessment" autocomplete="off" />
         </el-form-item>
         <el-form-item label="性别" :label-width="formLabelWidth" prop="gender">
           <el-radio-group v-model="form.gender" >
@@ -318,7 +311,7 @@ function resetForm(){
         <div class="dialog-footer">
           <el-button type="warning" @click="resetForm">重置</el-button>
           <el-button @click="handleEditCancle">取消</el-button>
-          <el-button type="primary" @click="saveDoctor">
+          <el-button type="primary" @click="savePharmacist">
             提交
           </el-button>
         </div>
@@ -336,12 +329,10 @@ function resetForm(){
             type="selection"
             width="55">
         </el-table-column>
-        <el-table-column prop="doctorId" label="医生编号" />
+        <el-table-column prop="pharmacistId" label="药品管理员编号" />
         <el-table-column prop="name" label="姓名" />
         <el-table-column prop="gender" label="性别" />
         <el-table-column prop="age" label="年龄" />
-        <el-table-column prop="departmentName" label="科室" />
-        <el-table-column prop="assessment" label="职称" />
         <el-table-column prop="phone" label="电话" />
         <el-table-column label="操作" align="center">
 

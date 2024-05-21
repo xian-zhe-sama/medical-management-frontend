@@ -17,16 +17,19 @@ const formLabelWidth = '140px'
 const isQuery = ref(false);
 const form = ref({
   name: '',
-  DepartmentId: '',
+  departmentId: '',
+});
+const formInit = ref({
+  name: '',
+  departmentId: '',
 });
 const rule = ref({
   name: [
     { required: true, message: '请输入科室名', trigger: 'blur' },
     { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' }
   ],
-  DepartmentId: [
+  departmentId: [
     { required: true, message: '请输入科室编号', trigger: 'blur' },
-    { min: 2, max: 5, message: '长度在 2 到 5 个字符', trigger: 'blur' }
   ],
 });
 
@@ -67,6 +70,7 @@ function saveDepartment()
       getAllDepartment();
     }
     ElMessage.success('保存成功')
+    Object.assign(form, formInit)
     dialogFormVisible.value = false;
   })
 }
@@ -131,7 +135,7 @@ function handleSelectionChange(selection) {
   selectedDepartmentIds.value = selection.map((item) => item.departmentId)
 }
 function handleEdit(department) {
-  Object.assign(form, department)
+  Object.assign(form.value, department)
   this.dialogFormVisible = true;
 }
 
@@ -146,6 +150,11 @@ function changePage(newPage) {
     getAllDepartment();
   }
 
+}
+
+function handleEditCancle() {
+  Object.assign(form, formInit)
+  dialogFormVisible.value = false;
 }
 </script>
 
@@ -164,13 +173,18 @@ function changePage(newPage) {
 
   <el-dialog align-center v-model="dialogFormVisible" title="保存科室信息" width="500">
     <el-form :model="form" :rules="rule" ref="formRef">
+      <el-form-item label="科室id" :label-width="formLabelWidth" prop="departmentId" v-if="false">
+        <el-input v-model="form.departmentId" autocomplete="off" />
+      </el-form-item>
+    </el-form>
+    <el-form :model="form" :rules="rule" ref="formRef">
       <el-form-item label="科室名" :label-width="formLabelWidth" prop="name">
         <el-input v-model="form.name" autocomplete="off" />
       </el-form-item>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取消</el-button>
+        <el-button @click="handleEditCancle">取消</el-button>
         <el-button type="primary" @click="saveDepartment">
           提交
         </el-button>
@@ -181,7 +195,7 @@ function changePage(newPage) {
     <el-table
         :data="tableData"
         @selection-change="handleSelectionChange"
-        style="width: 100%"
+        style="width: 100%;font-size: 17px"
     >
       <el-table-column
           type="selection"
