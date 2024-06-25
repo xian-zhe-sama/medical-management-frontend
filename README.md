@@ -1,6 +1,6 @@
-# medical-management-frontend
+# 医疗管理系统前端页面
 
-This template should help get you started developing with Vue 3 in Vite.
+### 由Vue3+Element Plus制作
 
 ## Recommended IDE Setup
 
